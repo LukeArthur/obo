@@ -134,9 +134,15 @@ abstract class Definition extends \obo\Object {
      */
     private function checkParametersForAnnotationValue($annotationValue) {
         $parametersDefinition = static::parametersDefinition()[self::PARAMETERS_DEFINITION];
-
+        $allParametersOptional = true;
+        foreach ($parametersDefinition as $parameterRequired) {
+            if ($parameterRequired) {
+                $allParametersOptional = false;
+                break;
+            }
+        }
         foreach ($annotationValue as $parameterName => $parameterRequired) {
-            if (!(isset($parametersDefinition[$parameterName]) OR \array_key_exists($parameterName, $parametersDefinition))) throw new \obo\Exceptions\BadAnnotationException("Annotation with name '" . static::name() . "' does not accept parameter with name '{$parameterName}'");
+            if (!($allParametersOptional AND ($parameterName === 0 AND $parameterRequired)) AND (!(isset($parametersDefinition[$parameterName]) OR \array_key_exists($parameterName, $parametersDefinition)))) throw new \obo\Exceptions\BadAnnotationException("Annotation with name '" . static::name() . "' does not accept parameter with name '{$parameterName}'");
             $parametersDefinition[$parameterName] = false;
         }
 
